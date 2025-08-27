@@ -121,7 +121,7 @@ class VigenereCypher:
         extended_key = VigenereCypher._extend_key(message, key, alphabet)
         for m_char, k_char in zip(message, extended_key):
             if m_char in alphabet:
-                index = (alphabet.index(m_char) + alphabet.index(k_char.upper())) % len(alphabet)
+                index = (alphabet.index(m_char) + alphabet.index(k_char)) % len(alphabet)
                 encrypted_message += alphabet[index]
             else:
                 encrypted_message += ""
@@ -140,7 +140,9 @@ class VigenereCypher:
         extended_key = VigenereCypher._extend_key(message, key, alphabet)
         for m_char, k_char in zip(message, extended_key):
             if m_char in alphabet:
-                index = (alphabet.index(m_char) - alphabet.index(k_char.upper())) % len(alphabet)
+                print(k_char)
+                print(alphabet)
+                index = (alphabet.index(m_char) - alphabet.index(k_char)) % len(alphabet)
                 decrypted_message += alphabet[index]
             else:
                 decrypted_message += ""
@@ -503,7 +505,6 @@ class AES:
                 f.write(base64.b64encode(raw).decode('utf-8'))
 
 class Blowfish:
-
     P_INIT = [
         0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344,
         0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89,
@@ -519,9 +520,7 @@ class Blowfish:
         [0x4ED3AA62,0x363F7706,0x1BFEDF72,0x429B023D,0xF6E96C9A,0x670C9C61,0xABD388F0,0x6A51A0D2]*32
     ]
 
-    # -----------------------------
     # F function
-    # -----------------------------
     @staticmethod
     def F(x, S):
         a = (x >> 24) & 0xFF
@@ -532,9 +531,7 @@ class Blowfish:
         f = (f + S[3][d]) & 0xFFFFFFFF
         return f
 
-    # -----------------------------
     # Key expansion
-    # -----------------------------
     @staticmethod
     def key_expansion(key: bytes):
         P = Blowfish.P_INIT.copy()
@@ -562,9 +559,7 @@ class Blowfish:
 
         return P, S
 
-    # -----------------------------
     # Encrypt / Decrypt block
-    # -----------------------------
     @staticmethod
     def encrypt_block(L, R, P, S):
         for i in range(16):
@@ -587,9 +582,7 @@ class Blowfish:
         L ^= P[0]
         return L, R
 
-    # -----------------------------
     # Padding helpers
-    # -----------------------------
     @staticmethod
     def pad(data: bytes) -> bytes:
         pad_len = 8 - (len(data) % 8)
@@ -600,9 +593,7 @@ class Blowfish:
         pad_len = data[-1]
         return data[:-pad_len]
 
-    # -----------------------------
     # Public methods (string key)
-    # -----------------------------
     @staticmethod
     def encrypt(plaintext: bytes, key: str) -> bytes:
         key_bytes = key.encode('utf-8')
@@ -649,18 +640,21 @@ class Blowfish:
                 f.write(base64.b64encode(raw).decode('utf-8'))
 
 password_correct = 'password'
-password_wrong = 'passwore'+"xd"
+password_wrong = 'passwon'
 caesar_shift = 3
+caesar_wrong = 4
 aes_size = 16
 alphabet = CaesarCypher.Alphabet.ALPHABET + \
     CaesarCypher.Alphabet.LOWERCASE_ALPHABET + \
+    CaesarCypher.Alphabet.SPECIAL_CZECH + \
+    CaesarCypher.Alphabet.SPECIAL_CZECH_LOWER + \
     CaesarCypher.Alphabet.SPACE + \
     CaesarCypher.Alphabet.SYMBOLS + \
     CaesarCypher.Alphabet.DIGITS
 
-source = 'cat_en'
+source = 'cat_fox_en'
 extension = '.txt'
-algorithm = VigenereCypher
+algorithm = CaesarCypher
 
 if algorithm == Blowfish:
     Blowfish.encrypt_file(source + extension, source + '_enc' + extension, password_correct)
@@ -677,4 +671,4 @@ if algorithm == VigenereCypher:
 if algorithm == CaesarCypher:
     CaesarCypher.encrypt_file(source + extension, source + '_enc' + extension, alphabet, caesar_shift)
     CaesarCypher.decrypt_file(source + '_enc' + extension, source + '_dec' + extension, alphabet, caesar_shift)
-    CaesarCypher.decrypt_file(source + '_enc' + extension, source + '_dec_wrong' + extension, alphabet, caesar_shift + 1)
+    CaesarCypher.decrypt_file(source + '_enc' + extension, source + '_dec_wrong' + extension, alphabet, caesar_wrong)

@@ -1,5 +1,5 @@
 # ZKR
-ZKB seminárka
+ZKR seminárka
 
 # Zadání
 Implementovat **2 vybrané algoritmy** = **1 algoritmus klasické kryptografie** + **1 algoritmus moderní kryptografie**. Implementaci doplnit textem s informacemi o zvoleném kryptografickém systému (kdy vznikl a proč), jeho autoři, pravidla použití, důsledky porušení kryptografického protokolu, jak se dá luštit, ...) a na příkladu ukázat jeho funkčnost (tj. několik odstavců textu v ČJ/AJ zašifrovat, poté dešifrovat, a také ukázat neúzpěšnist dešifrování při drobné úpravě klíče).
@@ -25,7 +25,7 @@ print(dec) # Hello, World! How is everyone doing?
 dec_wrong = CaesarCypher.decrypt(enc, alphabet, 17)
 print(dec_wrong) # Gdkkn?žVnqkc.žGnvžhrždudqxnmdžcnhmf!
 ```
-# Vigenerova šifra
+# Vigenerova šifra (klassická kryptografie)
 **Princip**: Jedná se o polyalfabetickou substituční šifru, která využívá klíčové slovo k opakovanému posunu písmen otevřeného textu. Každé písmeno zprávy je zašifrováno pomocí odpovídajícího písmena klíče – posun je určen pozicí písmena klíče v abecedě. Pokud je klíč kratší než zpráva, opakuje se.
 
 **Použití**: V minulosti byla Vigenerova šifra používána pro osobní i vojenskou komunikaci. Dnes je považována za slabou, protože lze prolomit frekvenční analýzou nebo pomocí Kasiskiho testu.
@@ -72,7 +72,7 @@ print(dec_wrong)
 # r\<e
 ```
 
-# Blowfish
+# Blowfish (moderní kryptografie)
 **Princip**: Blowfish je bloková šifra s délkou bloku 64 bitů a proměnnou délkou klíče (od 32 do 448 bitů). Používá složitou strukturu tzv. Feistelovy sítě, kde se data opakovaně transformují pomocí substitučních boxů (S-boxů) a permutačních boxů (P-boxů). Klíč je při inicializaci rozšířen do interních struktur, což zvyšuje bezpečnost.
 
 **Použití**: Blowfish se často používal v softwarových aplikacích, například pro šifrování hesel nebo souborů. Dnes je považován za bezpečný pro většinu účelů, ale kvůli malé velikosti bloku (64 bitů) není vhodný pro šifrování velkých objemů dat.

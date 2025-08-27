@@ -1,4 +1,6 @@
 import hashlib
+import struct
+import base64
 
 class CaesarCypher:
     class Alphabet:
@@ -6,8 +8,8 @@ class CaesarCypher:
         LOWERCASE_ALPHABET = ALPHABET.lower()
         SPECIAL_CZECH = "ÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"
         SPECIAL_CZECH_LOWER = SPECIAL_CZECH.lower()
-        SPACE = " "
-        SYMBOLS = ".!?,;:()[]{}<>"
+        SPACE = " \n"
+        SYMBOLS = ".!?,;:()[]{}<>\"'-_"
         DIGITS = "0123456789"
 
     @staticmethod
@@ -77,6 +79,100 @@ class CaesarCypher:
         
         decrypted_data = CaesarCypher.decrypt(data, alphabet, shift)
         
+        with open(file_path_to, 'w', encoding='utf-8') as f:
+            f.write(decrypted_data)
+            
+class VigenereCypher:
+    class Alphabet:
+        ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        LOWERCASE_ALPHABET = ALPHABET.lower()
+        SPECIAL_CZECH = "ÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"
+        SPECIAL_CZECH_LOWER = SPECIAL_CZECH.lower()
+        SPACE = " \n"
+        SYMBOLS = ".!?,;:()[]{}<>\"'-_"
+        DIGITS = "0123456789"
+
+    @staticmethod
+    def _extend_key(message: str, key: str, alphabet: str) -> str:
+        """
+        Repeat the key to match the length of the message, but only for characters
+        present in the alphabet. Non-alphabet characters are skipped in the key.
+        """
+        extended_key = ""
+        key_index = 0
+        for char in message:
+            if char in alphabet:
+                extended_key += key[key_index % len(key)]
+                key_index += 1
+            else:
+                extended_key += ""  # keep non-alphabet characters
+        return extended_key
+
+    @staticmethod
+    def encrypt(message: str, alphabet: str, key: str) -> str:
+        """
+        Encrypts a message using the Vigenère cipher.
+        :param message: The message to encrypt.
+        :param alphabet: The alphabet to use for encryption.
+        :param key: The keyword to use for encryption.
+        :return: The encrypted message.
+        """
+        encrypted_message = ""
+        extended_key = VigenereCypher._extend_key(message, key, alphabet)
+        for m_char, k_char in zip(message, extended_key):
+            if m_char in alphabet:
+                index = (alphabet.index(m_char) + alphabet.index(k_char.upper())) % len(alphabet)
+                encrypted_message += alphabet[index]
+            else:
+                encrypted_message += ""
+        return encrypted_message
+
+    @staticmethod
+    def decrypt(message: str, alphabet: str, key: str) -> str:
+        """
+        Decrypts a message using the Vigenère cipher.
+        :param message: The message to decrypt.
+        :param alphabet: The alphabet to use for decryption.
+        :param key: The keyword to use for decryption.
+        :return: The decrypted message.
+        """
+        decrypted_message = ""
+        extended_key = VigenereCypher._extend_key(message, key, alphabet)
+        for m_char, k_char in zip(message, extended_key):
+            if m_char in alphabet:
+                index = (alphabet.index(m_char) - alphabet.index(k_char.upper())) % len(alphabet)
+                decrypted_message += alphabet[index]
+            else:
+                decrypted_message += ""
+        return decrypted_message
+
+    @staticmethod
+    def encrypt_file(file_path_from: str, file_path_to: str, alphabet: str, key: str) -> None:
+        """
+        Encrypts a file using the Vigenère cipher.
+        :param file_path_from: Path to the file to encrypt.
+        :param file_path_to: Path to save the encrypted file.
+        :param alphabet: The alphabet to use for encryption.
+        :param key: The keyword to use for encryption.
+        """
+        with open(file_path_from, 'r', encoding='utf-8') as f:
+            data = f.read()
+        encrypted_data = VigenereCypher.encrypt(data, alphabet, key)
+        with open(file_path_to, 'w', encoding='utf-8') as f:
+            f.write(encrypted_data)
+
+    @staticmethod
+    def decrypt_file(file_path_from: str, file_path_to: str, alphabet: str, key: str) -> None:
+        """
+        Decrypts a file using the Vigenère cipher.
+        :param file_path_from: Path to the file to decrypt.
+        :param file_path_to: Path to save the decrypted file.
+        :param alphabet: The alphabet to use for decryption.
+        :param key: The keyword to use for decryption.
+        """
+        with open(file_path_from, 'r', encoding='utf-8') as f:
+            data = f.read()
+        decrypted_data = VigenereCypher.decrypt(data, alphabet, key)
         with open(file_path_to, 'w', encoding='utf-8') as f:
             f.write(decrypted_data)
 
@@ -384,7 +480,7 @@ class AES:
             f.write(bytes(encrypted_data))
     
     @staticmethod
-    def decrypt_file(file_path_from: str, file_path_to: str, password: str, length: int = 16) -> None:
+    def decrypt_file(file_path_from: str, file_path_to: str, password: str, length: int = 16, do_base64=False) -> None:
         """
         Decrypts a file using AES encryption.
         :param file_path_from: The path to the file to decrypt.
@@ -399,16 +495,186 @@ class AES:
         
         with open(file_path_to, 'w', encoding='utf-8') as f:
             f.write(decrypted_data)
+        
+        if do_base64:
+            with open(file_path_to, 'rb') as f:
+                raw = f.read()
+            with open(file_path_to, 'w', encoding='utf-8') as f:
+                f.write(base64.b64encode(raw).decode('utf-8'))
 
-AES.encrypt_file('cat_cz.txt', 'cat_cz_enc.enc', 'password', 16)
-AES.decrypt_file('cat_cz_enc.enc', 'cat_cz_dec_correct.txt', 'password', 16)
-AES.decrypt_file('cat_cz_enc.enc', 'cat_cz_dec_wrong.txt', 'passwore', 16)
+class Blowfish:
 
+    P_INIT = [
+        0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344,
+        0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89,
+        0x452821E6, 0x38D01377, 0xBE5466CF, 0x34E90C6C,
+        0xC0AC29B7, 0xC97C50DD, 0x3F84D5B5, 0xB5470917,
+        0x9216D5D9, 0x8979FB1B
+    ]
+
+    S_INIT = [
+        [0xD1310BA6,0x98DFB5AC,0x2FFD72DB,0xD01ADFB7,0xB8E1AFED,0x6A267E96,0x5A05DF1B,0x4B7A70E9]*32,
+        [0x4B7A70E9,0xB5B32944,0xDB75092E,0xC4192623,0x3A3C3F3F,0x4B7A70E9,0xB5B32944,0xDB75092E]*32,
+        [0xF6E96C9A,0x670C9C61,0xABD388F0,0x6A51A0D2,0x4ED3AA62,0x363F7706,0x1BFEDF72,0x429B023D]*32,
+        [0x4ED3AA62,0x363F7706,0x1BFEDF72,0x429B023D,0xF6E96C9A,0x670C9C61,0xABD388F0,0x6A51A0D2]*32
+    ]
+
+    # -----------------------------
+    # F function
+    # -----------------------------
+    @staticmethod
+    def F(x, S):
+        a = (x >> 24) & 0xFF
+        b = (x >> 16) & 0xFF
+        c = (x >> 8) & 0xFF
+        d = x & 0xFF
+        f = ((S[0][a] + S[1][b]) & 0xFFFFFFFF) ^ S[2][c]
+        f = (f + S[3][d]) & 0xFFFFFFFF
+        return f
+
+    # -----------------------------
+    # Key expansion
+    # -----------------------------
+    @staticmethod
+    def key_expansion(key: bytes):
+        P = Blowfish.P_INIT.copy()
+        S = [s.copy() for s in Blowfish.S_INIT]
+        key_len = len(key)
+        j = 0
+        for i in range(18):
+            data = 0
+            for _ in range(4):
+                data = (data << 8) | key[j]
+                j = (j + 1) % key_len
+            P[i] ^= data
+
+        L, R = 0, 0
+        for i in range(0, 18, 2):
+            L, R = Blowfish.encrypt_block(L, R, P, S)
+            P[i] = L
+            P[i+1] = R
+
+        for i in range(4):
+            for j in range(0, 256, 2):
+                L, R = Blowfish.encrypt_block(L, R, P, S)
+                S[i][j] = L
+                S[i][j+1] = R
+
+        return P, S
+
+    # -----------------------------
+    # Encrypt / Decrypt block
+    # -----------------------------
+    @staticmethod
+    def encrypt_block(L, R, P, S):
+        for i in range(16):
+            L ^= P[i]
+            R ^= Blowfish.F(L, S)
+            L, R = R, L
+        L, R = R, L
+        R ^= P[16]
+        L ^= P[17]
+        return L, R
+
+    @staticmethod
+    def decrypt_block(L, R, P, S):
+        for i in reversed(range(16)):
+            L ^= P[i+2]
+            R ^= Blowfish.F(L, S)
+            L, R = R, L
+        L, R = R, L
+        R ^= P[1]
+        L ^= P[0]
+        return L, R
+
+    # -----------------------------
+    # Padding helpers
+    # -----------------------------
+    @staticmethod
+    def pad(data: bytes) -> bytes:
+        pad_len = 8 - (len(data) % 8)
+        return data + bytes([pad_len] * pad_len)
+
+    @staticmethod
+    def unpad(data: bytes) -> bytes:
+        pad_len = data[-1]
+        return data[:-pad_len]
+
+    # -----------------------------
+    # Public methods (string key)
+    # -----------------------------
+    @staticmethod
+    def encrypt(plaintext: bytes, key: str) -> bytes:
+        key_bytes = key.encode('utf-8')
+        P, S = Blowfish.key_expansion(key_bytes)
+        plaintext = Blowfish.pad(plaintext)
+        ciphertext = b''
+        for i in range(0, len(plaintext), 8):
+            L, R = struct.unpack('>II', plaintext[i:i+8])
+            L, R = Blowfish.encrypt_block(L, R, P, S)
+            ciphertext += struct.pack('>II', L, R)
+        return ciphertext
+
+    @staticmethod
+    def decrypt(ciphertext: bytes, key: str) -> bytes:
+        key_bytes = key.encode('utf-8')
+        P, S = Blowfish.key_expansion(key_bytes)
+        plaintext = b''
+        for i in range(0, len(ciphertext), 8):
+            L, R = struct.unpack('>II', ciphertext[i:i+8])
+            L, R = Blowfish.decrypt_block(L, R, P, S)
+            plaintext += struct.pack('>II', L, R)
+        return Blowfish.unpad(plaintext)
+
+    @staticmethod
+    def encrypt_file(in_filename, out_filename, key: str):
+        with open(in_filename, 'rb') as f:
+            data = f.read()
+        enc_data = Blowfish.encrypt(data, key)
+        with open(out_filename, 'wb') as f:
+            f.write(enc_data)
+
+    @staticmethod
+    def decrypt_file(in_filename, out_filename, key: str, do_base64=False):
+        with open(in_filename, 'rb') as f:
+            data = f.read()
+        dec_data = Blowfish.decrypt(data, key)
+        with open(out_filename, 'wb') as f:
+            f.write(dec_data)
+        
+        if do_base64:
+            with open(out_filename, 'rb') as f:
+                raw = f.read()
+            with open(out_filename, 'w', encoding='utf-8') as f:
+                f.write(base64.b64encode(raw).decode('utf-8'))
+
+password_correct = 'password'
+password_wrong = 'passwore'+"xd"
+caesar_shift = 3
+aes_size = 16
 alphabet = CaesarCypher.Alphabet.ALPHABET + \
     CaesarCypher.Alphabet.LOWERCASE_ALPHABET + \
     CaesarCypher.Alphabet.SPACE + \
     CaesarCypher.Alphabet.SYMBOLS + \
     CaesarCypher.Alphabet.DIGITS
-CaesarCypher.encrypt_file('cat_en.txt', 'cat_en_enc.txt', alphabet, 3)
-CaesarCypher.decrypt_file('cat_en_enc.txt', 'cat_en_dec_correct.txt', alphabet, 3)
-CaesarCypher.decrypt_file('cat_en_enc.txt', 'cat_en_dec_wrong.txt', alphabet, 4)
+
+source = 'cat_en'
+extension = '.txt'
+algorithm = VigenereCypher
+
+if algorithm == Blowfish:
+    Blowfish.encrypt_file(source + extension, source + '_enc' + extension, password_correct)
+    Blowfish.decrypt_file(source + '_enc' + extension, source + '_dec' + extension, password_correct)
+    Blowfish.decrypt_file(source + '_enc' + extension, source + '_dec_wrong' + extension, password_wrong, do_base64 = True)
+if algorithm == AES:
+    AES.encrypt_file(source + extension, source + '_enc' + extension, password_correct, aes_size)
+    AES.decrypt_file(source + '_enc' + extension, source + '_dec' + extension, password_correct, aes_size)
+    AES.decrypt_file(source + '_enc' + extension, source + '_dec_wrong' + extension, password_wrong, aes_size, do_base64 = True)
+if algorithm == VigenereCypher:
+    VigenereCypher.encrypt_file(source + extension, source + '_enc' + extension, alphabet, password_correct)
+    VigenereCypher.decrypt_file(source + '_enc' + extension, source + '_dec' + extension, alphabet, password_correct)
+    VigenereCypher.decrypt_file(source + '_enc' + extension, source + '_dec_wrong' + extension, alphabet, password_wrong)
+if algorithm == CaesarCypher:
+    CaesarCypher.encrypt_file(source + extension, source + '_enc' + extension, alphabet, caesar_shift)
+    CaesarCypher.decrypt_file(source + '_enc' + extension, source + '_dec' + extension, alphabet, caesar_shift)
+    CaesarCypher.decrypt_file(source + '_enc' + extension, source + '_dec_wrong' + extension, alphabet, caesar_shift + 1)

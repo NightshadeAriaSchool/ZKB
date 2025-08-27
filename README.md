@@ -14,6 +14,10 @@ Implementovat **2 vybrané algoritmy** = **1 algoritmus klasické kryptografie**
 
 **Porušení protokolu**: Pokud dojde k úniku klíče (posunu), je šifra snadno rozluštitelná. To činí systém zranitelným pro útočníky.
 
+**Luštění**: Césarova šifra je velmi snadno prolomitelná. Nejčastěji se používají tyto metody:
+- **Brute-force útok**: Vyzkouší se všech 26 (nebo více, podle abecedy) možných posunů a hledá se smysluplný text.
+- **Frekvenční analýza**: Porovnává se četnost písmen v šifrovaném textu s běžnou četností v daném jazyce. Nejčastější písmeno v šifře pravděpodobně odpovídá nejčastějšímu písmenu v jazyce (např. "E" v češtině).
+
 ### Příklad
 ```python
 # Kód ze souboru ZKR.py ...
@@ -33,6 +37,11 @@ print(dec_wrong) # Gdkkn?žVnqkc.žGnvžhrždudqxnmdžcnhmf!
 **Použití**: V minulosti byla Vigenerova šifra používána pro osobní i vojenskou komunikaci. Dnes je považována za slabou, protože lze prolomit frekvenční analýzou nebo pomocí Kasiskiho testu.
 
 **Porušení protokolu**: Pokud je klíč příliš krátký nebo opakovaný, šifra je zranitelná vůči útokům. Důsledkem je možnost odhalení klíče a dešifrování zprávy.
+
+**Luštění**: Vigenerova šifra je složitější, ale stále prolomitelná:
+- **Kasiskiho test**: Pomocí opakujících se sekvencí v šifrovaném textu lze odhadnout délku klíče.
+- **Friedmanův test**: Statistická metoda pro odhad délky klíče.
+- **Frekvenční analýza po rozdělení textu**: Po zjištění délky klíče se text rozdělí na skupiny podle pozic klíče a na každou skupinu se použije frekvenční analýza jako u Césarovy šifry.
 
 ### Příklad
 ```python
@@ -60,6 +69,11 @@ print(dec_wrong) # Nesmyslný text
 
 **Porušení protokolu**: Pokud útočník získá tajný klíč, může dešifrovat všechny zašifrované zprávy. AES je však odolný proti většině běžných útoků, pokud je správně implementován a používán s dostatečně silným klíčem.
 
+**Luštění**: S je považován za velmi bezpečný, pokud je použit správně:
+- **Brute-force útok**: Teoreticky je možné zkusit všechny klíče, ale při délce 128 bitů je to prakticky nemožné (trvalo by miliardy let).
+- **Kryptoanalýza**: Existují pokročilé metody, ale žádná není v praxi účinná proti plné implementaci AES.
+- **Útoky na implementaci**: Chyby v implementaci (např. únik klíče, side-channel útoky) mohou šifru oslabit.
+
 ### Příklad
 ```python
 # Kód ze souboru ZKR.py ...
@@ -77,11 +91,16 @@ print(dec_wrong)
 # Blowfish (moderní kryptografie)
 **Vznik a autoři**: Blowfish byl navržen v roce 1993 americkým kryptografem Brucem Schneierem jako rychlá a volně dostupná alternativa k tehdejším šifrám, zejména DES.
 
-**Princip**: Blowfish je bloková šifra s délkou bloku 64 bitů a proměnnou délkou klíče (od 32 do 448 bitů). Používá složitou strukturu tzv. Feistelovy sítě, kde se data opakovaně transformují pomocí substitučních boxů (S-boxů) a permutačních boxů (P-boxů). Klíč je při inicializaci rozšířen do interních struktur, což zvyšuje bezpečnost.
+**Princip**: Blowfish je bloková šifra s délkou bloku 64 bitů a proměnnou délkou klíče (od 32 do 448 bitů). Používá složitou strukturu tzv. Feistelovy sítě, kde se data opakovaně transformují pomocí substitučních boxů (S-boxů) a permutačních boxů (P-boxů). Klíč je při inicializaci rozšířen do interních struktur.
 
 **Použití**: Blowfish se často používal v softwarových aplikacích, například pro šifrování hesel nebo souborů. Dnes je považován za bezpečný pro většinu účelů, ale kvůli malé velikosti bloku (64 bitů) není vhodný pro šifrování velkých objemů dat.
 
 **Porušení protokolu**: Pokud je klíč slabý nebo opakovaný, může být šifra zranitelná vůči útokům. Blowfish je odolný proti většině známých útoků, pokud je správně implementován a používán s dostatečně silným klíčem.
+
+**Luštění**: Blowfish je bezpečný, pokud je použit správně:
+- **Brute-force útok**: Kvůli proměnné délce klíče (až 448 bitů) je brute-force neproveditelný.
+- **Kryptoanalýza**: Nejsou známy praktické útoky na plnou verzi Blowfish.
+- **Útoky na implementaci**: Stejně jako u AES, chyby v implementaci nebo slabé klíče mohou šifru oslabit.
 
 ### Příklad
 ```python

@@ -93,6 +93,14 @@ print(dec_wrong)
 
 **Princip**: Blowfish je bloková šifra s délkou bloku 64 bitů a proměnnou délkou klíče (od 32 do 448 bitů). Používá složitou strukturu tzv. Feistelovy sítě, kde se data opakovaně transformují pomocí substitučních boxů (S-boxů) a permutačních boxů (P-boxů). Klíč je při inicializaci rozšířen do interních struktur.
 
+**Jak Blowfish funguje**:
+
+Blowfish je bloková šifra, která pracuje s bloky o velikosti 64 bitů. Klíč může mít délku od 32 do 448 bitů. Šifra využívá tzv. Feistelovu síť, což znamená, že každý blok dat je rozdělen na dvě poloviny (levou a pravou). Šifrování probíhá v 16 kolech, kde se obě poloviny dat postupně transformují pomocí složitých operací – hlavně substituce (nahrazení hodnot pomocí S-boxů) a permutace (prohození pořadí pomocí P-boxů).
+
+Při inicializaci se z klíče vytvoří interní struktury (S-boxy a P-boxy), které se používají v každém kole šifrování. Každé kolo zahrnuje kombinaci dat s částí klíče a aplikaci funkce F, která zajišťuje složitost šifrování.
+
+Dešifrování probíhá stejným způsobem, jen v opačném pořadí. Blowfish je navržen tak, aby byl rychlý a bezpečný pro softwarové použití.
+
 **Použití**: Blowfish se často používal v softwarových aplikacích, například pro šifrování hesel nebo souborů. Dnes je považován za bezpečný pro většinu účelů, ale kvůli malé velikosti bloku (64 bitů) není vhodný pro šifrování velkých objemů dat.
 
 **Porušení protokolu**: Pokud je klíč slabý nebo opakovaný, může být šifra zranitelná vůči útokům. Blowfish je odolný proti většině známých útoků, pokud je správně implementován a používán s dostatečně silným klíčem.
